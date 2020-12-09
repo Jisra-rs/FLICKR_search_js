@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const _photosView = (picture) => {
 
         picture.photo.map((picture, i) => {
-            let _div_Photos = document.getElementById('_fotos');
+            let _div_Photos = document.getElementById('fotos');
             _div_Photos.innerHTML += `
             <div class="_divphoto">
                 <img id="_idImage" class="_photo" data-id-array="${i}" 
@@ -34,9 +34,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (_picturesResult.length !== 0) {
 
             _picturesResult = [];
-            let _fotosDiv = document.getElementById('_fotos');
+            let _fotosDiv = document.getElementById('fotos');
             let _divPhotos = document.createElement('div');
-            _divPhotos.id = "_fotos";
+            _divPhotos.id = "fotos";
             _fotosDiv.remove();
             document.getElementById('main').appendChild(_divPhotos);
           }
@@ -44,41 +44,67 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const _resultZero = () => {
         let _spanNoResult = document.createElement('span');
-        document.getElementById('_fotos').appendChild(_spanNoResult);
+        document.getElementById('fotos').appendChild(_spanNoResult);
         _spanNoResult.innerHTML = "No se han encontrado resultados de la búsqueda";
     }
 
-     /*
-        Modal visualization & validation
-    */
-
+    // Vista modal
     const _openModal = (imgToShow) => {
         _picIdArray = Number(imgToShow.dataset.idArray);
-        let modal = document.getElementById('_popUp');
+        let modal = document.getElementById('popUp');
         modal.style.display = "block";
+        _isfirstOrLastIDArray();
         modal.innerHTML += _expandImageSelected(_picIdArray);
         
     }
 
     const _expandImageSelected = (IdArray) => {
-        console.log(IdArray);
-        let pictureToShow = _picturesResult.photo[IdArray];
-        console.log(pictureToShow);
+        let pictureToShow= _picturesResult.photo[IdArray];
         let view = `<div id="caption">${pictureToShow.title}</div>
                     <img class="modal-content" id="img01" src="https://farm${pictureToShow.farm}.staticflickr.com/${pictureToShow.server}/${pictureToShow.id}_${pictureToShow.secret}.jpg">`
         return view;
     }
 
     const _closeModal = () => {
-        let modal = document.getElementById('_popUp');
+        let modal = document.getElementById('popUp');
         modal.style.display = "none";
         document.getElementById('caption').remove();
         document.getElementById('img01').remove();
     }
 
-    /*
-    Búsqueda de imagen 
-    */
+    const _isfirstOrLastIDArray = () => {
+        // Renew the standard behaviour
+        let _btnPrevious = document.getElementById('previous');
+        let _btnNext     = document.getElementById('next');
+        _btnPrevious.className = "btn";
+        _btnPrevious.disabled=false;
+        _btnNext.className = "btn";
+        _btnNext.disabled=false;
+        // bloquea el botón en caso de ser la primera o la última imagen
+        if (_picIdArray === 0) {
+            _btnPrevious.className = "btnDisabled";
+            _btnPrevious.disabled=true;
+          } else if (_picIdArray === (_picturesResult.photo.length - 1)) {
+            _btnNext.className = "btnDisabled";
+            _btnNext.disabled=true;
+          } 
+    }
+
+    const _btnsNextPreviousPic = (sel) => {
+        if (sel === 1) {
+            _picIdArray = _picIdArray + 1;
+        } else {
+            _picIdArray = _picIdArray - 1;
+        }
+        document.getElementById('caption').remove();
+        document.getElementById('img01').remove();
+        let modal = document.getElementById('popUp');
+        _isfirstOrLastIDArray();
+        modal.innerHTML += _expandImageSelected(_picIdArray);
+    }
+
+
+    /* Búsqueda de imagen */
     _searchFlickrPhotos.addEventListener("click", () => {
 
         _deletePreviousResult()
@@ -101,8 +127,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.addEventListener('click', ev => {
                         if      (ev.target.matches('#close')) _closeModal();
                         else if (ev.target.matches('#_idImage')) _openModal(ev.target);
+                        else if (ev.target.matches('#next')) _btnsNextPreviousPic(1);
+                        else if (ev.target.matches('#previous')) _btnsNextPreviousPic(0);
                     });
                 }
             });
     });
+
 });
+
+

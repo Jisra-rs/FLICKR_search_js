@@ -1,6 +1,6 @@
 /* CSS Document */
 
-#_fotos{
+#fotos{
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -91,4 +91,29 @@
     font-size: 40px;
     font-weight: bold;
     transition: 0.3s;
+}
+
+
+.button_div{
+    display: flex;
+    justify-content: center;
+}
+
+button {
+    border: none;
+    background-color: rgba(33,33,33,0.9); 
+    font-family: monospace;
+    margin: 0px 20px;
+    width: 150px;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+button.btn {
+    color:#ddd;
+    cursor: pointer;
+}
+
+button.btnDisabled {
+    color:#333;
 }
