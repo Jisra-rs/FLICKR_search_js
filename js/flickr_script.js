@@ -1,0 +1,2 @@
+// Javascript Document
+'use strict'
