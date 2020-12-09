@@ -47,7 +47,38 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('_fotos').appendChild(_spanNoResult);
         _spanNoResult.innerHTML = "No se han encontrado resultados de la búsqueda";
     }
-    // Búsqueda de imagen
+
+     /*
+        Modal visualization & validation
+    */
+
+    const _openModal = (imgToShow) => {
+        _picIdArray = Number(imgToShow.dataset.idArray);
+        let modal = document.getElementById('_popUp');
+        modal.style.display = "block";
+        modal.innerHTML += _expandImageSelected(_picIdArray);
+        
+    }
+
+    const _expandImageSelected = (IdArray) => {
+        console.log(IdArray);
+        let pictureToShow = _picturesResult.photo[IdArray];
+        console.log(pictureToShow);
+        let view = `<div id="caption">${pictureToShow.title}</div>
+                    <img class="modal-content" id="img01" src="https://farm${pictureToShow.farm}.staticflickr.com/${pictureToShow.server}/${pictureToShow.id}_${pictureToShow.secret}.jpg">`
+        return view;
+    }
+
+    const _closeModal = () => {
+        let modal = document.getElementById('_popUp');
+        modal.style.display = "none";
+        document.getElementById('caption').remove();
+        document.getElementById('img01').remove();
+    }
+
+    /*
+    Búsqueda de imagen 
+    */
     _searchFlickrPhotos.addEventListener("click", () => {
 
         _deletePreviousResult()
@@ -67,6 +98,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     _photosView (_picturesResult);
                     
+                    document.addEventListener('click', ev => {
+                        if      (ev.target.matches('#close')) _closeModal();
+                        else if (ev.target.matches('#_idImage')) _openModal(ev.target);
+                    });
                 }
             });
     });
