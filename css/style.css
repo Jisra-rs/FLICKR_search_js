@@ -38,6 +38,36 @@
     overflow:hidden;
 }
 
+/* Pagination */
+
+#_paginationInfo{
+    display: flex;
+    justify-content: flex-end;
+    font-family: monospace;
+    font-size: 15px;
+}
+
+#_paginationInfo span{
+    font-weight: bold;
+}
+
+#_paginationInfo button{
+    border: solid;
+    border-radius: 1rem;
+    margin: 0px 20px;
+    width: 120px;
+}
+
+#_paginationInfo button.btn {
+    cursor: pointer;
+    border-color: black;
+    color:#333;
+}
+
+#_paginationInfo button.btnDisabled {
+    color:#ddd;
+}
+
 /* Modal photo visualization */
 
 .modal {
@@ -93,13 +123,12 @@
     transition: 0.3s;
 }
 
-
 .button_div{
     display: flex;
     justify-content: center;
 }
 
-button {
+.button_div button{
     border: none;
     background-color: rgba(33,33,33,0.9); 
     font-family: monospace;
@@ -109,11 +138,11 @@ button {
     font-weight: bold;
 }
 
-button.btn {
+div.button_div button.btn {
     color:#ddd;
     cursor: pointer;
 }
 
-button.btnDisabled {
+div.button_div button.btnDisabled {
     color:#333;
 }

@@ -11,11 +11,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let _picturesResult     = [];
     let _searchPagination   = 1;
+    let _theLastPagination  = 0;
     let _picIdArray         = 0;
     let _searchFlickrPhotos = document.getElementById("_search");
 
     // Gestión de vistas HTML
     const _photosView = (picture) => {
+        _generatePagination();
+        _isfirstOrLastPage();
 
         picture.photo.map((picture, i) => {
             let _div_Photos = document.getElementById('fotos');
@@ -30,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const _deletePreviousResult = () => {
-
         if (_picturesResult.length !== 0) {
 
             _picturesResult = [];
@@ -47,6 +49,48 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('fotos').appendChild(_spanNoResult);
         _spanNoResult.innerHTML = "No se han encontrado resultados de la búsqueda";
     }
+
+    /* Paginación */
+    const _generatePagination = () => {
+        let _div_pagination = document.getElementById('_pagination');
+        _div_pagination.innerHTML = ` 
+                        <div id="_paginationInfo">
+                            <button id="_previousPag" > Previous </button>
+                            <span id="_pagSpan" class="_pagSpan">Page ${_searchPagination} of ${_theLastPagination}</span>
+                            <button id="_nextPag" > Next </button>
+                        </div>
+                    `
+    }
+        
+    const _btnsNextPreviousPagination = (sel) => {
+        if (sel === 1) {
+            _searchPagination = _searchPagination + 1;
+        } else {
+            _searchPagination = _searchPagination - 1;
+        }
+        document.getElementById('_paginationInfo').remove();
+        _generatePagination();
+         _isfirstOrLastPage();
+    }
+
+    const _isfirstOrLastPage = () => {
+        // Establecer valore s por defecto
+        let _btnPrevious = document.getElementById('_previousPag');
+        let _btnNext     = document.getElementById('_nextPag');
+        _btnPrevious.className  = "btn";
+        _btnPrevious.disabled   = false;
+        _btnNext.className      = "btn";
+        _btnNext.disabled       = false;
+        // bloquea el botón en caso de ser la primera o la última página
+        if (_searchPagination === 1) {
+            _btnPrevious.className = "btnDisabled";
+            _btnPrevious.disabled=true;
+          } else if (_searchPagination === _theLastPagination) {
+            _btnNext.className = "btnDisabled";
+            _btnNext.disabled=true;
+          } 
+    }
+
 
     // Vista modal
     const _openModal = (imgToShow) => {
@@ -73,13 +117,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const _isfirstOrLastIDArray = () => {
-        // Renew the standard behaviour
+        // Establecer valore s por defecto
         let _btnPrevious = document.getElementById('previous');
         let _btnNext     = document.getElementById('next');
-        _btnPrevious.className = "btn";
-        _btnPrevious.disabled=false;
-        _btnNext.className = "btn";
-        _btnNext.disabled=false;
+        _btnPrevious.className  = "btn";
+        _btnPrevious.disabled   =false;
+        _btnNext.className      = "btn";
+        _btnNext.disabled       =false;
         // bloquea el botón en caso de ser la primera o la última imagen
         if (_picIdArray === 0) {
             _btnPrevious.className = "btnDisabled";
@@ -89,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
             _btnNext.disabled=true;
           } 
     }
-
+    
     const _btnsNextPreviousPic = (sel) => {
         if (sel === 1) {
             _picIdArray = _picIdArray + 1;
@@ -103,7 +147,6 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.innerHTML += _expandImageSelected(_picIdArray);
     }
 
-
     /* Búsqueda de imagen */
     _searchFlickrPhotos.addEventListener("click", () => {
 
@@ -112,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const SEARCH_PICTURE = document.getElementById('_text_label').value;
 
         // FETCH : Petición a servicios/apis rest
-        fetch(URL_FETCH + APP_API_KEY + '&tags=' + SEARCH_PICTURE + '&format=json&nojsoncallback=1' + _searchPagination)
+        fetch(URL_FETCH + APP_API_KEY + '&text=' + SEARCH_PICTURE + '&format=json&nojsoncallback=1' + _searchPagination)
 
             // Promesas
             .then(data => data.json())
@@ -122,13 +165,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (_picturesResult.total === "0") {
                     _resultZero();
                 } else {
+                    _theLastPagination = _picturesResult.pages;
                     _photosView (_picturesResult);
-                    
+
                     document.addEventListener('click', ev => {
                         if      (ev.target.matches('#close')) _closeModal();
                         else if (ev.target.matches('#_idImage')) _openModal(ev.target);
                         else if (ev.target.matches('#next')) _btnsNextPreviousPic(1);
                         else if (ev.target.matches('#previous')) _btnsNextPreviousPic(0);
+                        else if (ev.target.matches('#_nextPag')) _btnsNextPreviousPagination(1);
+                        else if (ev.target.matches('#_previousPag')) _btnsNextPreviousPagination(0);
                     });
                 }
             });
