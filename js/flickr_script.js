@@ -10,16 +10,15 @@ const URL_FETCH = URL_FLICKR_REST + FLICKR_METHOD + '&api_key=';
 document.addEventListener('DOMContentLoaded', () => {
 
     let _picturesResult     = [];
-    let _searchPagination   = 1;
+    let _searchPagination   = 0;
     let _theLastPagination  = 0;
     let _picIdArray         = 0;
-    let _searchFlickrPhotos = document.getElementById("_search");
 
-    // Gestión de vistas HTML
+    /* 
+    Gestión de vistas HTML 
+    */
+    // Página principal
     const _photosView = (picture) => {
-        _generatePagination();
-        _isfirstOrLastPage();
-
         picture.photo.map((picture, i) => {
             let _div_Photos = document.getElementById('fotos');
             _div_Photos.innerHTML += `
@@ -45,12 +44,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const _resultZero = () => {
+
+        let _divPhotos = document.getElementById('_paginationInfo');
+        if (_divPhotos !== null) {
+            _divPhotos.remove();
+        }
+        _searchPagination   = 0;
+        _theLastPagination  = 0;
         let _spanNoResult = document.createElement('span');
         document.getElementById('fotos').appendChild(_spanNoResult);
         _spanNoResult.innerHTML = "No se han encontrado resultados de la búsqueda";
     }
 
-    /* Paginación */
+    // Paginación
     const _generatePagination = () => {
         let _div_pagination = document.getElementById('_pagination');
         _div_pagination.innerHTML = ` 
@@ -68,29 +74,31 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             _searchPagination = _searchPagination - 1;
         }
-        document.getElementById('_paginationInfo').remove();
-        _generatePagination();
-         _isfirstOrLastPage();
+        _searchFlickrPhotos(_searchPagination);
     }
 
-    const _isfirstOrLastPage = () => {
-        // Establecer valore s por defecto
-        let _btnPrevious = document.getElementById('_previousPag');
-        let _btnNext     = document.getElementById('_nextPag');
+    const _isfirstOrLastPage = () => { _isFirstOrLastVal ("_previousPag", "_nextPag", "pag")}
+
+    function _isFirstOrLastVal (uno, dos, tres) {
+        let _btnPreviousId  = uno;
+        let _btnNextId      = dos;
+        let _validation     = tres;
+        // Establecer valores por defecto
+        let _btnPrevious = document.getElementById(_btnPreviousId);
+        let _btnNext     = document.getElementById(_btnNextId);
         _btnPrevious.className  = "btn";
         _btnPrevious.disabled   = false;
         _btnNext.className      = "btn";
         _btnNext.disabled       = false;
         // bloquea el botón en caso de ser la primera o la última página
-        if (_searchPagination === 1) {
+        if ((_searchPagination === 1 && _validation === "pag") || (_picIdArray === 0 && _validation === "pho")) {
             _btnPrevious.className = "btnDisabled";
             _btnPrevious.disabled=true;
-          } else if (_searchPagination === _theLastPagination) {
+          } else if ((_searchPagination === _theLastPagination && _validation === "pag") || (_picIdArray === (_picturesResult.photo.length - 1) && _validation === "pho")) {
             _btnNext.className = "btnDisabled";
             _btnNext.disabled=true;
           } 
     }
-
 
     // Vista modal
     const _openModal = (imgToShow) => {
@@ -116,23 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('img01').remove();
     }
 
-    const _isfirstOrLastIDArray = () => {
-        // Establecer valore s por defecto
-        let _btnPrevious = document.getElementById('previous');
-        let _btnNext     = document.getElementById('next');
-        _btnPrevious.className  = "btn";
-        _btnPrevious.disabled   =false;
-        _btnNext.className      = "btn";
-        _btnNext.disabled       =false;
-        // bloquea el botón en caso de ser la primera o la última imagen
-        if (_picIdArray === 0) {
-            _btnPrevious.className = "btnDisabled";
-            _btnPrevious.disabled=true;
-          } else if (_picIdArray === (_picturesResult.photo.length - 1)) {
-            _btnNext.className = "btnDisabled";
-            _btnNext.disabled=true;
-          } 
-    }
     
     const _btnsNextPreviousPic = (sel) => {
         if (sel === 1) {
@@ -147,15 +138,18 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.innerHTML += _expandImageSelected(_picIdArray);
     }
 
-    /* Búsqueda de imagen */
-    _searchFlickrPhotos.addEventListener("click", () => {
+    const _isfirstOrLastIDArray = () => { _isFirstOrLastVal ("previous", "next", "pho")}
 
+    /* Búsqueda de fotos */
+
+    function _searchFlickrPhotos(_pag) {
+        _searchPagination = _pag;
         _deletePreviousResult()
 
         const SEARCH_PICTURE = document.getElementById('_text_label').value;
 
         // FETCH : Petición a servicios/apis rest
-        fetch(URL_FETCH + APP_API_KEY + '&text=' + SEARCH_PICTURE + '&format=json&nojsoncallback=1' + _searchPagination)
+        fetch(URL_FETCH + APP_API_KEY + '&text=' + SEARCH_PICTURE + '&page=' + _searchPagination + '&privacy_filter=1&format=json&nojsoncallback=1')
 
             // Promesas
             .then(data => data.json())
@@ -166,20 +160,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     _resultZero();
                 } else {
                     _theLastPagination = _picturesResult.pages;
+                    _generatePagination();
+                    _isfirstOrLastPage();
                     _photosView (_picturesResult);
-
-                    document.addEventListener('click', ev => {
-                        if      (ev.target.matches('#close')) _closeModal();
-                        else if (ev.target.matches('#_idImage')) _openModal(ev.target);
-                        else if (ev.target.matches('#next')) _btnsNextPreviousPic(1);
-                        else if (ev.target.matches('#previous')) _btnsNextPreviousPic(0);
-                        else if (ev.target.matches('#_nextPag')) _btnsNextPreviousPagination(1);
-                        else if (ev.target.matches('#_previousPag')) _btnsNextPreviousPagination(0);
-                    });
                 }
             });
+    }
+
+    // Eventos click
+    document.addEventListener('click', ev => {
+        if      (ev.target.matches('#close'))       _closeModal();
+        else if (ev.target.matches('#_idImage'))    _openModal(ev.target);
+        else if (ev.target.matches('#next'))        _btnsNextPreviousPic(1);
+        else if (ev.target.matches('#previous'))    _btnsNextPreviousPic(0);
+        else if (ev.target.matches('#_nextPag'))    _btnsNextPreviousPagination(1);
+        else if (ev.target.matches('#_previousPag')) _btnsNextPreviousPagination(0);
+        else if (ev.target.matches('#_search'))     _searchFlickrPhotos(1);
     });
 
 });
-
-

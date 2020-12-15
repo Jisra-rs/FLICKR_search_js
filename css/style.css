@@ -1,5 +1,36 @@
 /* CSS Document */
 
+._header_search{
+    background-color: rgba(33,33,33,0.9);
+    font-size: 20px;
+    font-weight: bold;
+    color: #ddd;
+}
+
+._header_search h1{
+    text-align: center;
+}
+._searchObj{
+    display: flex;
+    margin: 20px;
+    height: 30px;
+}
+
+._searchObj input[type="text"] {
+    width: 100%;
+    padding: 0 10px;
+    margin: 0 10px;
+}
+
+._searchObj input[type="button"] {
+    width: 10%;
+    padding: 0 10px;
+    border: none;
+    font-family: monospace;
+    font-size: 20px;
+    font-weight: bold;
+}
+
 #fotos{
     display: flex;
     flex-wrap: wrap;
