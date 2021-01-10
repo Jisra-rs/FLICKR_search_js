@@ -25,16 +25,26 @@
 ._searchObj input[type="button"] {
     width: 10%;
     padding: 0 10px;
-    border: none;
     font-family: monospace;
     font-size: 20px;
     font-weight: bold;
+    min-width: 120px;
+    background-color: #DCDCDC;
+    border: solid 2px #808080;
+    border-radius: .5rem;
+    cursor: pointer;
 }
 
 #fotos{
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+}
+
+#fotos span{
+    font-family: monospace;
+    font-size: 20px;
+    font-weight: bold;
 }
 
 ._divphoto{

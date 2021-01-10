@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 src="https://farm${picture.farm}.staticflickr.com/${picture.server}/${picture.id}_${picture.secret}.jpg" 
                 alt="${picture.title}">
             <div>
-            `;
+            `
         });
     }
 
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
         _theLastPagination  = 0;
         let _spanNoResult = document.createElement('span');
         document.getElementById('fotos').appendChild(_spanNoResult);
-        _spanNoResult.innerHTML = "No se han encontrado resultados de la búsqueda";
+        _spanNoResult.innerHTML = "UPS! No se han encontrado resultados para esa búsqueda";
     }
 
     // Paginación
@@ -79,6 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const _isfirstOrLastPage = () => { _isFirstOrLastVal ("_previousPag", "_nextPag", "pag")}
 
+    // función para validar el primer y último registro (paginación y fotos)
     function _isFirstOrLastVal (uno, dos, tres) {
         let _btnPreviousId  = uno;
         let _btnNextId      = dos;
@@ -143,29 +144,32 @@ document.addEventListener('DOMContentLoaded', () => {
     /* Búsqueda de fotos */
 
     function _searchFlickrPhotos(_pag) {
-        _searchPagination = _pag;
-        _deletePreviousResult()
-
         const SEARCH_PICTURE = document.getElementById('_text_label').value;
-
-        // FETCH : Petición a servicios/apis rest
-        fetch(URL_FETCH + APP_API_KEY + '&text=' + SEARCH_PICTURE + '&page=' + _searchPagination + '&privacy_filter=1&format=json&nojsoncallback=1')
-
-            // Promesas
-            .then(data => data.json())
-            .then(pictures => {
-                _picturesResult = pictures.photos;
-
-                if (_picturesResult.total === "0") {
-                    _resultZero();
-                } else {
-                    _theLastPagination = _picturesResult.pages;
-                    _generatePagination();
-                    _isfirstOrLastPage();
-                    _photosView (_picturesResult);
-                }
-            });
-    }
+        if (SEARCH_PICTURE === "") {
+            alert("El campo de búsqueda está vacío.");
+        } else {
+            _searchPagination = _pag;
+            _deletePreviousResult();
+    
+            // FETCH : Petición a servicios/apis rest
+            fetch(URL_FETCH + APP_API_KEY + '&text=' + SEARCH_PICTURE + '&page=' + _searchPagination + '&privacy_filter=1&format=json&nojsoncallback=1')
+    
+                // Promesas
+                .then(data => data.json())
+                .then(pictures => {
+                    _picturesResult = pictures.photos;
+    
+                    if (_picturesResult.total === "0") {
+                        _resultZero();
+                    } else {
+                        _theLastPagination = _picturesResult.pages;
+                        _generatePagination();
+                        _isfirstOrLastPage();
+                        _photosView (_picturesResult);
+                    }
+                });
+        }
+}
 
     // Eventos click
     document.addEventListener('click', ev => {
